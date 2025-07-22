@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Aftellen tot volgend uur</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding-top: 100px;
+      background-color: #f0f0f0;
+    }
+    h1 {
+      font-size: 2em;
+      margin-bottom: 20px;
+    }
+    #countdown {
+      font-size: 3em;
+      font-weight: bold;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <h1>Aftellen tot het volgende hele uur</h1>
+  <div id="countdown">00:00:00</div>
+
+  <script>
+    function updateCountdown() {
+      const now = new Date();
+      const nextHour = new Date();
+
+      nextHour.setHours(now.getHours() + 1);
+      nextHour.setMinutes(0);
+      nextHour.setSeconds(0);
+      nextHour.setMilliseconds(0);
+
+      const diff = nextHour - now;
+
+      const totalSeconds = Math.floor(diff / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+
+      const padded = (n) => n.toString().padStart(2, '0');
+      document.getElementById('countdown').textContent =
+        `${padded(hours)}:${padded(minutes)}:${padded(seconds)}`;
+    }
+
+    // Update elke seconde
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>
