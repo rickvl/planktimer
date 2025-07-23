@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Aftellen tot volgend uur</title>
+  <title>Aftellen tot planken</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -35,14 +35,28 @@
       justify-content: center;
       z-index: 1000;
     }
+    #start-button {
+      margin-top: 30px;
+      padding: 15px 30px;
+      font-size: 1.2em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    #start-button:hover {
+      background-color: #0056b3;
+    }
   </style>
 </head>
 <body>
   <h1>We gaan weer planken over:</h1>
   <div id="countdown">00:00</div>
+  <button id="start-button">Start 10 seconden aftellen</button> 
   <div id="big-countdown">10</div>
 
-  <!-- Audio-element voor piep -->
+  <!-- Piepgeluid -->
   <audio id="beep-sound">
     <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
     <source src="https://actions.google.com/sounds/v1/alarms/beep_short.mp3" type="audio/mpeg">
@@ -50,11 +64,19 @@
   </audio>
 
   <script>
+    const countdownDisplay = document.getElementById('countdown');
     const bigCountdown = document.getElementById('big-countdown');
     const beepSound = document.getElementById('beep-sound');
-    let lastSecond = null;
+    const startButton = document.getElementById('start-button');
 
+    let lastSecond = null;
+    let manualCountdownActive = false;
+    let manualCountdownSeconds = 10;
+
+    // Automatisch aftellen tot heel uur
     function updateCountdown() {
+      if (manualCountdownActive) return;
+
       const now = new Date();
       const nextHour = new Date();
       nextHour.setHours(now.getHours() + 1, 0, 0, 0);
@@ -64,17 +86,13 @@
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
 
-      // Kleine teller
       const padded = (n) => n.toString().padStart(2, '0');
-      document.getElementById('countdown').textContent =
-        `${padded(minutes)}:${padded(seconds)}`;
+      countdownDisplay.textContent = `${padded(minutes)}:${padded(seconds)}`;
 
-      // Grote teller en piep
       if (totalSeconds <= 10 && totalSeconds > 0) {
         bigCountdown.style.display = 'flex';
         bigCountdown.textContent = totalSeconds;
 
-        // Alleen piep afspelen als seconde veranderd is
         if (lastSecond !== totalSeconds) {
           beepSound.currentTime = 0;
           beepSound.play();
@@ -86,6 +104,58 @@
       }
     }
 
+    // Start 60 seconden plank aftellen
+    function startPlankCountdown() {
+      let seconds = 60;
+      bigCountdown.style.display = 'flex';
+      bigCountdown.textContent = seconds;
+
+      const plankInterval = setInterval(() => {
+        seconds--;
+
+        // Piep bij laatste 10 seconden
+        if (seconds <= 10 && seconds > 0) {
+          beepSound.currentTime = 0;
+          beepSound.play();
+        }
+
+        if (seconds > 0) {
+          bigCountdown.textContent = seconds;
+        } else {
+          bigCountdown.style.display = 'none';
+          manualCountdownActive = false;
+          clearInterval(plankInterval);
+        }
+      }, 1000);
+    }
+
+    // Handmatige 10 seconden aftelling starten
+    function startManualCountdown() {
+      if (manualCountdownActive) return;
+
+      manualCountdownActive = true;
+      manualCountdownSeconds = 10;
+      bigCountdown.textContent = manualCountdownSeconds;
+      bigCountdown.style.display = 'flex';
+
+      const interval = setInterval(() => {
+        beepSound.currentTime = 0;
+        beepSound.play();
+
+        manualCountdownSeconds--;
+        if (manualCountdownSeconds > 0) {
+          bigCountdown.textContent = manualCountdownSeconds;
+        } else {
+          clearInterval(interval);
+          startPlankCountdown(); // Start direct 60 seconden teller
+        }
+      }, 1000);
+    }
+
+    // Startknop activeren
+    startButton.addEventListener('click', startManualCountdown);
+
+    // Start klok-update
     updateCountdown();
     setInterval(updateCountdown, 1000);
   </script>
