@@ -48,9 +48,39 @@
     #start-button:hover {
       background-color: #0056b3;
     }
+    #audio-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0,0,0,0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+#audio-enable-button {
+  padding: 20px 40px;
+  font-size: 1.5em;
+  background-color: #28a745;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+#audio-enable-button:hover {
+  background-color: #218838;
+}
+
   </style>
 </head>
 <body>
+  <div id="audio-overlay">
+  <button id="audio-enable-button">Klik om te starten</button>
+  </div>
   <h1>We gaan weer planken over:</h1>
   <div id="countdown">00:00</div>
   <button id="start-button">Start 10 seconden aftellen</button> 
@@ -168,6 +198,23 @@
     // Start klok-update
     updateCountdown();
     setInterval(updateCountdown, 1000);
+    // Audio activeren via overlay
+document.getElementById('audio-enable-button').addEventListener('click', () => {
+  // Probeer stil geluid af te spelen om toestemming te triggeren
+  beepSound.volume = 0;
+  beepSound.play().then(() => {
+    beepSound.pause();
+    beepSound.currentTime = 0;
+    beepSound.volume = 1;
+
+    // Verberg overlay zodra audio geactiveerd is
+    document.getElementById('audio-overlay').style.display = 'none';
+  }).catch((e) => {
+    alert("Klik nogmaals om geluid te activeren.");
+    console.error("Audio activatie mislukt:", e);
+  });
+});
+
   </script>
 </body>
 </html>
