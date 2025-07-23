@@ -98,6 +98,17 @@
           beepSound.play();
           lastSecond = totalSeconds;
         }
+      } else if (totalSeconds === 0) {
+        // Hele uur bereikt, start automatisch plank countdown
+        bigCountdown.style.display = 'none';
+        lastSecond = null;
+
+        setTimeout(() => {
+          if (!manualCountdownActive) {
+            manualCountdownActive = true;
+            startPlankCountdown();
+          }
+        }, 1000);
       } else {
         bigCountdown.style.display = 'none';
         lastSecond = null;
@@ -113,7 +124,6 @@
       const plankInterval = setInterval(() => {
         seconds--;
 
-        // Piep bij laatste 10 seconden
         if (seconds <= 10 && seconds > 0) {
           beepSound.currentTime = 0;
           beepSound.play();
