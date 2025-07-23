@@ -20,35 +20,72 @@
       font-weight: bold;
       color: #333;
     }
+    #big-countdown {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.85);
+      color: white;
+      font-size: 10em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
   </style>
 </head>
 <body>
   <h1>We gaan weer planken over:</h1>
-  <div id="countdown">00:00:00</div>
+  <div id="countdown">00:00</div>
+  <div id="big-countdown">10</div>
+
+  <!-- Audio-element voor piep -->
+  <audio id="beep-sound">
+    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.mp3" type="audio/mpeg">
+    Je browser ondersteunt het afspelen van audio niet.
+  </audio>
 
   <script>
+    const bigCountdown = document.getElementById('big-countdown');
+    const beepSound = document.getElementById('beep-sound');
+    let lastSecond = null;
+
     function updateCountdown() {
       const now = new Date();
       const nextHour = new Date();
-
-      nextHour.setHours(now.getHours() + 1);
-      nextHour.setMinutes(0);
-      nextHour.setSeconds(0);
-      nextHour.setMilliseconds(0);
-
+      nextHour.setHours(now.getHours() + 1, 0, 0, 0);
       const diff = nextHour - now;
 
       const totalSeconds = Math.floor(diff / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
       const minutes = Math.floor((totalSeconds % 3600) / 60);
       const seconds = totalSeconds % 60;
 
+      // Kleine teller
       const padded = (n) => n.toString().padStart(2, '0');
       document.getElementById('countdown').textContent =
         `${padded(minutes)}:${padded(seconds)}`;
+
+      // Grote teller en piep
+      if (totalSeconds <= 10 && totalSeconds > 0) {
+        bigCountdown.style.display = 'flex';
+        bigCountdown.textContent = totalSeconds;
+
+        // Alleen piep afspelen als seconde veranderd is
+        if (lastSecond !== totalSeconds) {
+          beepSound.currentTime = 0;
+          beepSound.play();
+          lastSecond = totalSeconds;
+        }
+      } else {
+        bigCountdown.style.display = 'none';
+        lastSecond = null;
+      }
     }
 
-    // Update elke seconde
     updateCountdown();
     setInterval(updateCountdown, 1000);
   </script>
